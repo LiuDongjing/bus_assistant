@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>  
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />  
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">  
+<title>腾讯班车助手</title>
+<style type="text/css">  
+html{height:100%}  
+body{height:100%;margin:0px;padding:0px}  
+#mymap{height:100%}  
+.no-click-item:active{background-color: transparent}
+</style>  
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=ak">
+</script>
+<script type="text/javascript" src="data/to_work_places.js"></script>
+<script type="text/javascript" src="data/to_work_routes.js"></script>
+<script type="text/javascript" src="data/off_work_places.js"></script>
+<script type="text/javascript" src="data/off_work_routes.js"></script>
+<script type="text/javascript" src="data/night_work_places.js"></script>
+<script type="text/javascript" src="data/night_work_routes.js"></script>
+<script type="text/javascript" src="data/name_to_point.js"></script>
+</head>  
+ 
+<body>
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">腾讯班车助手</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarsExample03">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">菜单</a>
+        <div class="dropdown-menu" aria-labelledby="dropdown03">
+            <button class="dropdown-item active" type="button" id="to_work">上班经停点</button>
+            <button class="dropdown-item" type="button" id="off_work">下班经停点</button>
+            <button class="dropdown-item" type="button" id="night_work">夜班经停点</button>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="help.html">帮助文档</a>
+            <a class="dropdown-item" href="https://github.com/LiuDongjing/bus_assistant/issues">报错</a>
+        </div>
+      </li>
+    </ul>
+    <form class="form-inline my-2 my-md-0">
+      <div class="dropdown" id="search_dropdown">
+      <input class="form-control mr-sm-2 dropdown-toggle" type="text" placeholder="地点、班车(例: BH-001)" aria-label="Search" id="search_input">
+      </div>
+      <button class="btn btn-outline-success my-2 my-sm-0" type="button" id="search_button">搜索</button>
+    </form>
+  </div>
+</nav>
+<div id="mymap"></div>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+<script type="text/javascript" src="js/main.js"></script>
+</body>  
+</html>
