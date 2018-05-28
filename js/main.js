@@ -242,6 +242,29 @@ function search() {
         }
     }
 }
+// 检查路线是否正常
+function check_route(route) {
+    let lng0 = 113.820646, lat0 = 22.629279;//宝安国际机场
+    let lng1 = 114.03694, lat1 = 22.61659;//深圳北站
+    let dis = 22.2;//相距22.2公里
+    //相邻两站超过三公里提示异常
+    let rad = 10*Math.sqrt(Math.pow(lng1-lng0, 2)+Math.pow(lat1-lat0, 2))/dis;
+    let rt = route["route"];
+    for(let i = 1; i < rt.length; i++) {
+        let prev = name_to_point[rt[i-1]["name"]];
+        if(prev === undefined || prev === null) {
+            console.warn(`在检查路线时找不到"${rt[i-1]["name"]}".`);
+            continue;
+        }
+        let cur = name_to_point[rt[i]["name"]];
+        if(cur === undefined || cur == null) {
+            console.warn(`在检查路线时找不到"${rt[i]["name"]}".`);
+        }
+        if(rad < Math.sqrt(Math.pow(prev["lng"]-cur["lng"], 2)+Math.pow(prev["lat"]-cur["lat"], 2))) {
+            console.warn(`${route["name"]}在"${rt[i-1]["name"]}"到"${rt[i]["name"]}"段距离异常.`);
+        }
+    }
+}
 function init() {
     for(let e of to_work_routes.concat(off_work_routes, night_work_routes)) {
         if(!(e["name"] in id_to_route)) {
@@ -250,6 +273,7 @@ function init() {
         else {
             console.warn(`有重名的班车路线：${e["name"]}.`);
         }
+        check_route(e);
     }
     for(let e of  to_work_routes) {
         for(let p of e["route"]) {
