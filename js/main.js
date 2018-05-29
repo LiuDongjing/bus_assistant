@@ -15,7 +15,7 @@ var map = null;//BMap.Map对象，用于绘制地图
 var to_work_place_info = {};
 var off_work_place_info = {};
 var night_work_place_info = {};
-var current_place_info = {};
+var name_to_place_info = {};
 
 // 在地图上绘制路线
 function draw_route(route) {
@@ -27,13 +27,13 @@ function draw_route(route) {
     let icons = new BMap.IconSequence(sy, '10', '30');
     // 创建polyline对象
     let pois = [];
-    for(r of route) {
+    for(let r of route) {
         let name = r['name'];
-        if(!(name in current_place_info)) {
+        if(!(name in name_to_place_info)) {
             console.warn("找不到："+name);
             continue;
         }
-        let p = current_place_info[name];
+        let p = name_to_place_info[name];
         let t = new BMap.Point(p.lng, p.lat);
         pois.push(t);
         if(name in name_to_marker) map.addOverlay(name_to_marker[name])
@@ -52,16 +52,22 @@ function draw_route(route) {
 //在地图上绘制经停点
 function mark_places(places) {
     clear_all_display();
+    if(places === to_work_places) $("#to_work").addClass("active");
+    else $("#to_work").removeClass("active");
+    if(places === off_work_places) $("#off_work").addClass("active");
+    else $("#off_work").removeClass("active");
+    if(places === night_work_places) $("#night_work").addClass("active");
+    else $("#night_work").removeClass("active");
     name_to_marker = {};
     let name_dict = {};
     for(let p of places) {
         if(!(p in name_dict)) {
             name_dict[p] = null;
-            if(!(p in current_place_info)) {
+            if(!(p in name_to_place_info)) {
                 console.warn(`在mark地址时未找到${p}.`);
                 continue;
             }
-            let t = current_place_info[p];
+            let t = name_to_place_info[p];
             let m = render_marker(p, new BMap.Point(t.lng, t.lat), t.bus);
             name_to_marker[p] = m;
             map.addOverlay(m);
@@ -133,7 +139,6 @@ function search_nearby_places(point, title, radius=2) {
     if(select_id == 1)places = to_work_place_info;
     else if(select_id == 2) places = off_work_place_info;
     else places = night_work_place_info;
-    current_place_info = places;
     let lng0 = 113.820646, lat0 = 22.629279;//宝安国际机场
     let lng1 = 114.03694, lat1 = 22.61659;//深圳北站
     let dis = 22.2;//相距22.2公里
@@ -243,7 +248,7 @@ function search() {
     }
 }
 // 检查路线是否正常
-function check_route(route) {
+function check_route(route, error_spots) {
     let lng0 = 113.820646, lat0 = 22.629279;//宝安国际机场
     let lng1 = 114.03694, lat1 = 22.61659;//深圳北站
     let dis = 22.2;//相距22.2公里
@@ -262,10 +267,14 @@ function check_route(route) {
         }
         if(rad < Math.sqrt(Math.pow(prev["lng"]-cur["lng"], 2)+Math.pow(prev["lat"]-cur["lat"], 2))) {
             console.warn(`${route["name"]}在"${rt[i-1]["name"]}"到"${rt[i]["name"]}"段距离异常.`);
+            let n = rt[i]["name"];
+            if(n in error_spots) error_spots[n].push(route["name"]);
+            else error_spots[n] = [route["name"]];
         }
     }
 }
 function init() {
+    let error_spots = {};
     for(let e of to_work_routes.concat(off_work_routes, night_work_routes)) {
         if(!(e["name"] in id_to_route)) {
             id_to_route[e["name"]] = e;
@@ -273,7 +282,29 @@ function init() {
         else {
             console.warn(`有重名的班车路线：${e["name"]}.`);
         }
-        check_route(e);
+        check_route(e, error_spots);
+        for(let r of e["route"]) {
+            if(r["name"] in name_to_place_info) {
+                name_to_place_info[r["name"]]["bus"].push(e["name"]);
+            }
+            else {
+                if(r["name"] in name_to_point) {
+                    let p = name_to_point[r["name"]]
+                    name_to_place_info[r["name"]] = {"lng":p["lng"], "lat":p["lat"], "bus":[e["name"]]}
+                }
+                else {
+                    console.warn(`在构建name_to_place_info时找不到${r["name"]}.`);
+                }
+            }
+        }
+    }
+    let error_vec = [];
+    for(let key in error_spots) {
+        error_vec.push({"name":key, "routes":error_spots[key]});
+    }
+    error_vec.sort((a, b)=>b["routes"].length - a["routes"].length);
+    for(let i = 0; i < error_vec.length; i++) {
+        console.warn(`${error_vec[i]["name"]}在${error_vec[i]["routes"].length}条路线上异常`);
     }
     for(let e of  to_work_routes) {
         for(let p of e["route"]) {
@@ -331,7 +362,6 @@ function init() {
             }
         }
     }
-    current_place_info = to_work_place_info;
 }
 function main() {
     map = new BMap.Map("mymap");
@@ -341,9 +371,9 @@ function main() {
     map.enableScrollWheelZoom();   //启用滚轮放大缩小，默认禁用
     map.enableContinuousZoom();
 
-    $("#to_work").click(()=>{current_place_info = to_work_place_info;mark_places(to_work_places);});
-    $("#off_work").click(()=>{current_place_info = off_work_place_info;mark_places(off_work_places);});
-    $("#night_work").click(()=>{current_place_info = night_work_place_info;mark_places(night_work_places);});
+    $("#to_work").click(()=>mark_places(to_work_places));
+    $("#off_work").click(()=>mark_places(off_work_places));
+    $("#night_work").click(()=>mark_places(night_work_places));
     $("#search_button").click(()=>search());
     setTimeout(()=>mark_places(to_work_places), 10);
 }
