@@ -144,10 +144,12 @@ function search_nearby_places(point, title, radius=2) {
     let dis = 22.2;//相距22.2公里
     let rad = radius*Math.sqrt(Math.pow(lng1-lng0, 2)+Math.pow(lat1-lat0, 2))/dis;
     let nearby_places = [];
+    let show_point = true;//是否显示搜索的中心点，当中心点也是经停点时，不用显示
     for(let k of Object.keys(places)) {
         let p = places[k];
         let d = Math.sqrt(Math.pow(p.lng-point.lng, 2)+Math.pow(p.lat-point.lat, 2));
         if(d <= rad) {
+            if(d <= 1e-6) show_point = false;
             let t = {};
             t["name"] = k;
             t["lng"] = p.lng;
@@ -160,7 +162,8 @@ function search_nearby_places(point, title, radius=2) {
     for(let p of nearby_places) {
         map.addOverlay(render_marker(p.name, new BMap.Point(p.lng, p.lat), p.bus));
     }
-    map.addOverlay(new BMap.Marker(point, {title:title}));
+    if(show_point)
+        map.addOverlay(new BMap.Marker(point, {title:title}));
     map.centerAndZoom(point, 13);
 }
 
